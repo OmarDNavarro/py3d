@@ -39,7 +39,6 @@ def rotate_z(points, angle):
 
     return np.dot(points, rotation_matrix.T)
 
-
 def scale(points, scale):
     
     scale_matrix = np.array([
