@@ -13,8 +13,9 @@ WHITE, BLACK = (255, 255, 255), (0, 0, 0)
 
 # Define rotation speeds
 ROTATION_SPEED = 0.05
+SCALE_SPEED = .01
 
-def cube_generator():
+def generate_cube():
     """Generate 3D cube vertices and edges."""
     points_3d = np.array([
         [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
@@ -27,6 +28,20 @@ def cube_generator():
         [0, 4], [1, 5], [2, 6], [3, 7]   # Connecting edges
     ]
     
+    return points_3d, edges
+
+
+def generate_pyramid():
+    points_3d = np.array([
+        [-1, -1, 0], [1, -1, 0], [1, 1, 0], [-1, 1, 0],
+        [0, 0, 1]
+    ])
+
+    edges = [
+        [0, 1], [1, 2], [2, 3], [3, 0], # Base
+        [0, 4], [1, 4], [2, 4], [3, 4]  # Triangle sides
+    ]
+
     return points_3d, edges
 
 def project_point(point, focal_length=5, scaling_factor=1000, epsilon=0.0001):
@@ -51,8 +66,9 @@ def draw_object(object_points, object_edges):
 def main():
     """Main loop for rendering the cube."""
     running = True
-    object_points, object_edges = cube_generator()
+    object_points, object_edges = generate_pyramid()
     rotation_x, rotation_y, rotation_z = 0, 0, 0
+    scale = 1
 
 
     while running:
@@ -63,7 +79,10 @@ def main():
         rotated_points = transformation.rotate_y(rotated_points, rotation_y)
         rotated_points = transformation.rotate_z(rotated_points, rotation_z)
 
-        draw_object(rotated_points, object_edges)  # Draw the cube
+        # Apply Scaling
+        scaled_points = transformation.scale(rotated_points, scale)
+
+        draw_object(scaled_points, object_edges)  # Draw the cube
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -71,6 +90,7 @@ def main():
 
         # Get user input for rotations
         keys = pygame.key.get_pressed()
+
         if keys[pygame.K_UP]:
             rotation_x += ROTATION_SPEED
         if keys[pygame.K_DOWN]:
@@ -85,9 +105,15 @@ def main():
             rotation_z += ROTATION_SPEED
         if keys[pygame.K_d]:
             rotation_z -= ROTATION_SPEED
+
+        if keys[pygame.K_1]:
+            scale -= SCALE_SPEED
+        if keys[pygame.K_2]:
+            scale += SCALE_SPEED
+
         
         pygame.display.flip()
-        clock.tick(60) # 60 FPS
+        clock.tick(120) # 120 FPS
     
     pygame.quit()
 
